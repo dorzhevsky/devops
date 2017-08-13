@@ -1,0 +1,23 @@
+---
+# tasks file for dorzhevsky.weave
+  - name: Download weave
+    get_url: 
+      url: https://github.com/zettio/weave/releases/download/latest_release/weave
+      dest: /usr/local/bin/weave
+    become: true
+  - name: Change weave file permissions
+    file: dest=/usr/local/bin/weave mode=a+x
+    become: true
+  - name: Check if weave is running
+    shell: docker ps | grep weave | wc -l
+    register: weave_checker         
+  - name: Start weave
+    command: weave launch {{peer_ip}}
+    become: true
+    when: weave_checker.stdout != "1"
+  - name: Configure weave
+    shell: eval $(weave env)
+    become: true
+    when: weave_checker.stdout != "1"
+
+

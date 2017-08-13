@@ -1,0 +1,51 @@
+---
+# tasks file for dorzhevsky.docker
+  - name: Copy docker repository key
+    copy:
+      src: ./docker.gpg.key
+      dest: /opt/docker.gpg.key
+    become: true
+  - name: Install docker repository key
+    apt_key:
+      file: /opt/docker.gpg.key
+      state: present
+      validate_certs: no
+    become: true
+  - name: Add docker repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu trusty stable
+      state: present
+    become: true
+  - name: Install docker ce
+    apt:
+      name: docker-ce
+      state: present
+      update_cache: yes
+    become: true
+  - name: Start docker service
+    service:
+      name: docker
+      state: started
+    become: true
+  - name: Add docker group
+    group:
+      name: docker
+      state: present
+    become: true
+  - name: Add user to docker group
+    user:
+      name: vagrant
+      groups: docker
+      append: yes
+    become: true
+  - name: Install pip
+    apt:
+      name: python-pip
+      state: present
+    become: true
+  - name: Install docker-py
+    pip:
+      name: docker-py
+      state: present
+      version: 1.9.0
+    become: true
