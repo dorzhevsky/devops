@@ -1,0 +1,25 @@
+  - name: Pull mysql image
+    docker_image:
+      name: mysql/mysql-server
+      state: present
+    become: true
+  - name: Create mysql container
+    docker_container:
+      name: mysql
+      image: mysql/mysql-server
+      state: present
+      network_mode: weave
+      env:
+        MYSQL_ROOT_PASSWORD: root
+    become: true
+  - name: Start mysql container
+    docker_container:
+      name: mysql
+      state: started
+    become: true
+  - name: Pause
+    command: sleep 20s
+    become: true
+  - name: Configure mysql container
+    command: docker exec mysql bash -c "mysql -u root -proot mysql --execute='grant all on *.* to \"root\"@\"%\" identified by \"root\"; flush privileges;'"
+    become: true
